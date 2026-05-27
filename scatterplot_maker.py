@@ -1,4 +1,5 @@
 from js import window
+from pyodide.ffi import create_proxy
 
 document = window.document
 Plotly = window.Plotly
@@ -21,7 +22,8 @@ def make_plot(event):
             "x": x_values,
             "y": y_values,
             "mode": "markers",
-            "type": "scatter"
+            "type": "scatter",
+            "marker": {"size": 10}
         }
 
         layout = {
@@ -35,4 +37,7 @@ def make_plot(event):
 
 
 button = document.getElementById("plot-btn")
-button.addEventListener("click", make_plot)
+
+proxy = create_proxy(make_plot)
+
+button.addEventListener("click", proxy)
