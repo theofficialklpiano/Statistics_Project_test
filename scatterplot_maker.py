@@ -1,5 +1,5 @@
 from js import window
-from pyodide.ffi import create_proxy
+from pyodide.ffi import create_proxy, to_js
 
 document = window.document
 Plotly = window.Plotly
@@ -27,10 +27,16 @@ def make_plot(event):
         }
 
         layout = {
-            "title": "Scatterplot"
+            "title": "Scatterplot",
+            "xaxis": {"title": "X Values"},
+            "yaxis": {"title": "Y Values"}
         }
 
-        Plotly.newPlot("graph", [trace], layout)
+        Plotly.newPlot(
+            "graph",
+            to_js([trace]),
+            to_js(layout)
+        )
 
     except Exception as e:
         print("ERROR:", e)
