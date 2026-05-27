@@ -1,42 +1,39 @@
-from js import window
-from pyodide.ffi import create_proxy, to_js
+from js import document, Plotly, Object, Array
+from pyodide.ffi import create_proxy
 
-document = window.document
-Plotly = window.Plotly
+# Keep proxy alive globally
+plot_proxy = None
 
 
 def make_plot(event):
 
-    try:
-        x_text = document.getElementById("x-values").value
-        y_text = document.getElementById("y-values").value
+    x_text = document.getElementById("x-values").value
+    y_text = document.getElementById("y-values").value
 
+    try:
         x_values = [float(x.strip()) for x in x_text.split(",")]
         y_values = [float(y.strip()) for y in y_text.split(",")]
 
         if len(x_values) != len(y_values):
-            print("Lengths must match")
+            print("X and Y lengths must match")
             return
 
-        trace = {
-            "x": x_values,
-            "y": y_values,
-            "mode": "markers",
-            "type": "scatter",
-            "marker": {"size": 10}
-        }
+        # Create REAL JS objects manually
+        trace = Object.fromEntries(Array.new([
+            ["x", x_values],
+            ["y", y_values],
+            ["mode", "markers"],
+            ["type", "scatter"]
+        ]))
 
-        layout = {
-            "title": "Scatterplot",
-            "xaxis": {"title": "X Values"},
-            "yaxis": {"title": "Y Values"}
-        }
+        layout = Object.fromEntries(Array.new([
+            ["title", "Scatterplot"]
+        ]))
 
-        Plotly.newPlot(
-            "graph",
-            to_js([trace]),
-            to_js(layout)
-        )
+        data = Array.new()
+        data.push(trace)
+
+        Plotly.newPlot("graph", data, layout)
 
     except Exception as e:
         print("ERROR:", e)
@@ -44,6 +41,6 @@ def make_plot(event):
 
 button = document.getElementById("plot-btn")
 
-proxy = create_proxy(make_plot)
+plot_proxy = create_proxy(make_plot)
 
-button.addEventListener("click", proxy)
+button.addEventListener("click", plot_proxy)
