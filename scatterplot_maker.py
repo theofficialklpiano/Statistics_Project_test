@@ -1,37 +1,47 @@
-from js import document, Plotly, Object, Array
+from js import document, Plotly, Array, Object
 from pyodide.ffi import create_proxy
 
-# Keep proxy alive globally
-plot_proxy = None
+proxy = None
 
 
 def make_plot(event):
 
-    x_text = document.getElementById("x-values").value
-    y_text = document.getElementById("y-values").value
-
     try:
-        x_values = [float(x.strip()) for x in x_text.split(",")]
-        y_values = [float(y.strip()) for y in y_text.split(",")]
+        x_text = document.getElementById("x-values").value
+        y_text = document.getElementById("y-values").value
 
-        if len(x_values) != len(y_values):
-            print("X and Y lengths must match")
+        x_py = [float(x.strip()) for x in x_text.split(",")]
+        y_py = [float(y.strip()) for y in y_text.split(",")]
+
+        if len(x_py) != len(y_py):
+            print("Lengths must match")
             return
 
-        # Create REAL JS objects manually
-        trace = Object.fromEntries(Array.new([
-            ["x", x_values],
-            ["y", y_values],
-            ["mode", "markers"],
-            ["type", "scatter"]
-        ]))
+        # Convert Python lists -> REAL JS arrays
+        x_js = Array.new()
+        y_js = Array.new()
 
-        layout = Object.fromEntries(Array.new([
-            ["title", "Scatterplot"]
-        ]))
+        for v in x_py:
+            x_js.push(v)
 
+        for v in y_py:
+            y_js.push(v)
+
+        # Create REAL JS trace object
+        trace = Object.new()
+
+        trace.x = x_js
+        trace.y = y_js
+        trace.mode = "markers"
+        trace.type = "scatter"
+
+        # JS array containing trace
         data = Array.new()
         data.push(trace)
+
+        # REAL JS layout object
+        layout = Object.new()
+        layout.title = "Scatterplot"
 
         Plotly.newPlot("graph", data, layout)
 
@@ -41,6 +51,6 @@ def make_plot(event):
 
 button = document.getElementById("plot-btn")
 
-plot_proxy = create_proxy(make_plot)
+proxy = create_proxy(make_plot)
 
-button.addEventListener("click", plot_proxy)
+button.addEventListener("click", proxy)
