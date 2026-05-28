@@ -37,6 +37,10 @@ function makePlot() {
         const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
         const intercept = (sumY - slope * sumX) / n;
 
+        // show calculated slope and y-intercept
+        document.getElementById("slope-display").innerHTML = `Slope: ${slope.toFixed(4)}`;
+        document.getElementById("intercept-display").innerHTML = `y-intercept: ${intercept.toFixed(4)}`;
+
         // sort values of x
         const sortedX = [...xValues].sort((a, b) => a - b);
         
