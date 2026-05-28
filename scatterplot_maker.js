@@ -22,17 +22,45 @@ function makePlot() {
             return;
         }
 
+        // line of best fit
+        const n = xValues.length;
+        let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+        
+        for (let i = 0; i < n; i++) {
+            sumX += xValues[i];
+            sumY += yValues[i];
+            sumXY += xValues[i] * yValues[i];
+            sumXX += xValues[i] * xValues[i];
+        }
+
+        // calculate slope and y-intercept
+        const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+        const intercept = (sumY - slope * sumX) / n;
+        
+        // generate y values of LOBF
+        const bestFitY = xValues.map(val => (slope * val) + intercept);
+
         // create scatterplot
         let trace = {
             x: xValues,
             y: yValues,
-
             mode: "markers",
-
             type: "scatter",
-
+            name: "Data Points",
             marker: {
                 size: 12
+            }
+        };
+
+        let traceBestFit = {
+            x: xValues,
+            y: bestFitY,
+            mode: "lines",
+            type: "scatter",
+            name: "Best Fit",
+            line: {
+                color: "red",
+                width: 2
             }
         };
 
@@ -48,7 +76,7 @@ function makePlot() {
             }
         };
 
-        Plotly.newPlot("graph", [trace], layout);
+        Plotly.newPlot("graph", [trace, traceBestFit], layout);
 
     }
 
