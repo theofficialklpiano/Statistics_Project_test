@@ -36,6 +36,9 @@ function makePlot() {
         // calculate slope and y-intercept
         const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
         const intercept = (sumY - slope * sumX) / n;
+
+        // sort values of x
+        const sortedX = [...xValues].sort((a, b) => a - b);
         
         // generate y values of LOBF
         const bestFitY = xValues.map(val => (slope * val) + intercept);
@@ -53,7 +56,7 @@ function makePlot() {
         };
 
         let traceBestFit = {
-            x: xValues,
+            x: sortedX,
             y: bestFitY,
             mode: "lines",
             type: "scatter",
